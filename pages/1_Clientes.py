@@ -3,7 +3,7 @@ import streamlit as st
 from _clientes_crear import main as main_clientes
 from _clientes_journey import main as  main_userprofile
 
-st.set_page_config(layout="wide",initial_sidebar_state="auto")
+st.set_page_config(layout="wide",initial_sidebar_state="auto",page_icon="https://operaciones.fra1.digitaloceanspaces.com/_icons/FAVICON-CF.png")
 
 formato = {
            'codigo':None,

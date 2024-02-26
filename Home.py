@@ -1,7 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide",page_icon="https://operaciones.fra1.digitaloceanspaces.com/_icons/FAVICON-CF.png")
 
 # streamlit run D:\Dropbox\Empresa\CapitalFriend\ProyectoCostumerJourney\Operaciones\_APP\Home.py
 # https://streamlit.io/

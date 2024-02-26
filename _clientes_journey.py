@@ -172,7 +172,7 @@ def main(codigo,codigo_proyecto=None):
             else: nombre_proyecto = 'Sin nombre'
             html_paso += f"""
             <div class="grid-item">
-              <a href="https://operaciones.streamlit.app/Clientes?codigo={codigo}&type=profile&codigo_proyecto={items['codigo_proyecto']}">
+              <a href="https://operaciones.streamlit.app/Clientes?codigo={codigo}&type=profile&codigo_proyecto={items['codigo_proyecto']}" target="_self">
                 <img src="https://operaciones.fra1.digitaloceanspaces.com/_icons/project-management.png" width="160" height="120">
               </a>
               <p>{nombre_proyecto}</p>
