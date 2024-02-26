@@ -120,7 +120,7 @@ def main(codigo,data,dataprocesos,userchange):
                 st.write('')
                 if st.button('Guardar Pasaporte'):
                     subfolder = f'cliente-{codigo}'
-                    value    = doc2nube(subfolder,ID_file,'ID_inversionista_principal')
+                    value    = doc2nube(subfolder,ID_file,'Pasaporte')
                     inputvar = {'urlpasaporte':value,'updated_at':datetime.now().strftime('%Y-%m-%d')}
                     codigo_name     = 'codigo'
                     codigo_cliente  = codigo
@@ -174,7 +174,7 @@ def main(codigo,data,dataprocesos,userchange):
                 st.write('')
                 if st.button('Guardar NIE'):
                     subfolder = f'cliente-{codigo}'
-                    value    = doc2nube(subfolder,ID_file,'ID_inversionista_principal')
+                    value    = doc2nube(subfolder,ID_file,'NIE')
                     inputvar = {'urlnie':value,'updated_at':datetime.now().strftime('%Y-%m-%d')}
                     codigo_name     = 'codigo'
                     codigo_cliente  = codigo
