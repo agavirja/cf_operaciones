@@ -1,5 +1,6 @@
 import streamlit as st
 import re
+import json
 import hashlib
 import pandas as pd
 from datetime import datetime
@@ -95,15 +96,15 @@ def main(codigo_cliente,datacliente,userchange):
                 datafinanciacion.to_sql('cj_financiacion', engine, if_exists='append', index=False, chunksize=1)
                  
                     # Configuracion
-                dataconfig = pd.DataFrame([{'cj_clientes_codigo':codigo_cliente,'codigo_proyecto':codigo_proyecto,'json':pd.io.json.dumps(dataconfiguracion()),'created_at':datetime.now().strftime('%Y-%m-%d')}])
+                dataconfig = pd.DataFrame([{'cj_clientes_codigo':codigo_cliente,'codigo_proyecto':codigo_proyecto,'json':json.dumps(dataconfiguracion()),'created_at':datetime.now().strftime('%Y-%m-%d')}])
                 dataconfig.to_sql('cj_configuracion', engine, if_exists='append', index=False, chunksize=1)
 
                     # Historico
                 resultado = []
-                formato   = [{'tabla':'cj_proyecto','data':pd.io.json.dumps(dataproyecto, orient='records')},
-                             {'tabla':'cj_pbc','data':pd.io.json.dumps(datapbc, orient='records')},
-                             {'tabla':'cj_proyecto_cliente','data':pd.io.json.dumps(dataproyectocliente, orient='records')},
-                             {'tabla':'cj_tipoinversionista','data':pd.io.json.dumps(datacoinversion, orient='records')}]
+                formato   = [{'tabla':'cj_proyecto','data':json.dumps(dataproyecto, orient='records')},
+                             {'tabla':'cj_pbc','data':json.dumps(datapbc, orient='records')},
+                             {'tabla':'cj_proyecto_cliente','data':json.dumps(dataproyectocliente, orient='records')},
+                             {'tabla':'cj_tipoinversionista','data':json.dumps(datacoinversion, orient='records')}]
                 for items in formato:
                     
                     resultado.append({'cj_clientes_codigo':codigo_cliente,

@@ -40,7 +40,8 @@ def main(codigo,codigo_proyecto,data,userchange):
                     pos = 0
                     col = st.columns(4)
                     
-    inputvar        = {'json':pd.io.json.dumps(dataexport),'updated_at':datetime.now().strftime('%Y-%m-%d')}
+    #inputvar        = {'json':pd.io.json.dumps(dataexport),'updated_at':datetime.now().strftime('%Y-%m-%d')}
+    inputvar        = {'json':json.dumps(dataexport),'updated_at':datetime.now().strftime('%Y-%m-%d')}
     codigo_name     = 'cj_clientes_codigo'
     updateinfoinversionista(inputvar,codigo_name,codigo,codigo_proyecto,'cj_configuracion',data,userchange,'button_info_configuracion')
     

@@ -146,53 +146,34 @@ def main(codigo,codigo_proyecto=None):
                 nombre_proyecto = items['nombre_proyecto']
             else: nombre_proyecto = 'Sin nombre'
             html_paso += f"""
-              <div class="image-container">
-                <a href="https://operaciones.streamlit.app/Clientes?codigo={codigo}&type=profile&codigo_proyecto={items['codigo_proyecto']}">
-                  <img src="https://operaciones.fra1.digitaloceanspaces.com/_icons/casa.png" alt="">
-                  <p>{nombre_proyecto}</p>
-                </a>
-              </div>
+            <div class="grid-item">
+              <a href="https://operaciones.streamlit.app/Clientes?codigo={codigo}&type=profile&codigo_proyecto={items['codigo_proyecto']}">
+                <img src="https://operaciones.fra1.digitaloceanspaces.com/_icons/project-management.png" width="160" height="120">
+              </a>
+              <p>{nombre_proyecto}</p>
+            </div>
             """
         style = """
         <style>
-          .container {
-            text-align: center; /* Centra los elementos hijos horizontalmente */
+          .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            justify-content: center;
+            justify-items: center;
           }
-          .image-container {
-            display: inline-block; 
-            margin-right: 20px; 
+        
+          .grid-item {
+            text-align: center;
+            margin-right: 20px;
           }
-          .image-container img {
-            width: 100px;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-          }
-          .image-container p {
-            text-align: left;
-            margin-top: 0px;
-          }
-          .image-container a {
-            text-decoration: none; /* Elimina el subrayado del enlace */
-            color: black; /* Cambia el color del texto del enlace a negro */
-          }
+        </style>    
         """
         html = f"""
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Imagen con enlace</title>
         {style}
-        </style>
-        </head>
-        <body>
-        <div class="container">
+        <div class="grid-container">
         {html_paso}
-        </div>
-        </body>
-        </html>
+        </div>    
         """
         texto = BeautifulSoup(html, 'html.parser')
         st.markdown(texto, unsafe_allow_html=True)
