@@ -22,6 +22,7 @@ def main():
             
     with col2:
         if st.button('Lista de clientes'):
+            st.cache_data.clear()
             st.session_state.tipo_clientes = True
             st.session_state.tipo_crear    = False
      
