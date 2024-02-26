@@ -57,6 +57,7 @@ def main(codigo,codigo_proyecto=None):
         
     col1,col2 = st.columns([4,1])
     with col2:
+        st.cache_data.clear()
         style_button_dir = """
         <style>
         .custom-button {
