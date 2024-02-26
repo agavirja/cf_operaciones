@@ -101,10 +101,10 @@ def main(codigo_cliente,datacliente,userchange):
 
                     # Historico
                 resultado = []
-                formato   = [{'tabla':'cj_proyecto','data':json.dumps(dataproyecto, orient='records')},
-                             {'tabla':'cj_pbc','data':json.dumps(datapbc, orient='records')},
-                             {'tabla':'cj_proyecto_cliente','data':json.dumps(dataproyectocliente, orient='records')},
-                             {'tabla':'cj_tipoinversionista','data':json.dumps(datacoinversion, orient='records')}]
+                formato   = [{'tabla':'cj_proyecto','data':json.dumps(dataproyecto.to_json(orient='records'))},
+                             {'tabla':'cj_pbc','data':json.dumps(datapbc.to_json(orient='records'))},
+                             {'tabla':'cj_proyecto_cliente','data':json.dumps(dataproyectocliente.to_json(orient='records'))},
+                             {'tabla':'cj_tipoinversionista','data':json.dumps(datacoinversion.to_json(orient='records'))}]
                 for items in formato:
                     
                     resultado.append({'cj_clientes_codigo':codigo_cliente,

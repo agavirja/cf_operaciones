@@ -116,13 +116,13 @@ def main(codigo_proyecto,userchange):
                               
                             # Historico
                         resultado = []
-                        formato   = [{'tabla':'cj_pbc','data':json.dumps(datapbc, orient='records')},
-                                     {'tabla':'cj_proyecto_cliente','data':json.dumps(dataproyectocliente, orient='records')},
-                                     {'tabla':'cj_tipoinversionista','data':json.dumps(datacoinversion, orient='records')},
-                                     {'tabla':'cj_nie','data':json.dumps(datanie, orient='records')},
-                                     {'tabla':'cj_sl','data':json.dumps(datasl, orient='records')},
-                                     {'tabla':'cj_cuenta_bancaria','data':json.dumps(datacuentabancaria, orient='records')},
-                                     {'tabla':'cj_financiacion','data':json.dumps(datafinanciacion, orient='records')},]
+                        formato   = [{'tabla':'cj_pbc','data':json.dumps(datapbc.to_json(orient='records'))},
+                                     {'tabla':'cj_proyecto_cliente','data':json.dumps(dataproyectocliente.to_json(orient='records'))},
+                                     {'tabla':'cj_tipoinversionista','data':json.dumps(datacoinversion.to_json(orient='records'))},
+                                     {'tabla':'cj_nie','data':json.dumps(datanie.to_json(orient='records'))},
+                                     {'tabla':'cj_sl','data':json.dumps(datasl.to_json(orient='records'))},
+                                     {'tabla':'cj_cuenta_bancaria','data':json.dumps(datacuentabancaria.to_json(orient='records'))},
+                                     {'tabla':'cj_financiacion','data':json.dumps(datafinanciacion.to_json(orient='records'))},]
                         for items in formato:
                             
                             resultado.append({'cj_clientes_codigo':codigo_cliente,
@@ -243,14 +243,14 @@ def main(codigo_proyecto,userchange):
 
                         # Historico
                     resultado = []
-                    formato   = [{'tabla':'cj_clientes','data':json.dumps(datacliente, orient='records')},
-                                 {'tabla':'cj_pbc','data':json.dumps(datapbc, orient='records')},
-                                 {'tabla':'cj_proyecto_cliente','data':json.dumps(dataproyectocliente, orient='records')},
-                                 {'tabla':'cj_tipoinversionista','data':json.dumps(datacoinversion, orient='records')},
-                                 {'tabla':'cj_nie','data':json.dumps(datanie, orient='records')},
-                                 {'tabla':'cj_sl','data':json.dumps(datasl, orient='records')},
-                                 {'tabla':'cj_cuenta_bancaria','data':json.dumps(datacuentabancaria, orient='records')},
-                                 {'tabla':'cj_financiacion','data':json.dumps(datafinanciacion, orient='records')},]
+                    formato   = [{'tabla':'cj_clientes','data':json.dumps(datacliente.to_json(orient='records'))},
+                                 {'tabla':'cj_pbc','data':json.dumps(datapbc.to_json(orient='records'))},
+                                 {'tabla':'cj_proyecto_cliente','data':json.dumps(dataproyectocliente.to_json(orient='records'))},
+                                 {'tabla':'cj_tipoinversionista','data':json.dumps(datacoinversion.to_json(orient='records'))},
+                                 {'tabla':'cj_nie','data':json.dumps(datanie.to_json(orient='records'))},
+                                 {'tabla':'cj_sl','data':json.dumps(datasl.to_json(orient='records'))},
+                                 {'tabla':'cj_cuenta_bancaria','data':json.dumps(datacuentabancaria.to_json(orient='records'))},
+                                 {'tabla':'cj_financiacion','data':json.dumps(datafinanciacion.to_json(orient='records'))},]
                     for items in formato:
                         
                         resultado.append({'cj_clientes_codigo':codigo_cliente,
