@@ -58,7 +58,7 @@ def main(codigo,codigo_proyecto=None):
     col1,col2 = st.columns([4,1])
     with col2:
         if st.button('Clientes'):
-            webbrowser.open("http://localhost:8501/Clientes")
+            webbrowser.open("https://operaciones.streamlit.app/Clientes")
 
     #-------------------------------------------------------------------------#
     # Informacion inversionista
@@ -147,7 +147,7 @@ def main(codigo,codigo_proyecto=None):
             else: nombre_proyecto = 'Sin nombre'
             html_paso += f"""
               <div class="image-container">
-                <a href="http://localhost:8501/Clientes?codigo={codigo}&type=profile&codigo_proyecto={items['codigo_proyecto']}">
+                <a href="https://operaciones.streamlit.app/Clientes?codigo={codigo}&type=profile&codigo_proyecto={items['codigo_proyecto']}">
                   <img src="https://operaciones.fra1.digitaloceanspaces.com/_icons/casa.png" alt="">
                   <p>{nombre_proyecto}</p>
                 </a>
@@ -462,7 +462,7 @@ def main(codigo,codigo_proyecto=None):
             codigo_coinversionista = items['codigo']
             html_paso += f"""
               <div class="image-container">
-                <a href="http://localhost:8501/Clientes?codigo={codigo_coinversionista}&type=profile">
+                <a href="https://operaciones.streamlit.app/Clientes?codigo={codigo_coinversionista}&type=profile">
                   <img src="https://operaciones.fra1.digitaloceanspaces.com/_icons/comprador.png" alt="">
                   <p>{items['nombre']}</p>
                 </a>
