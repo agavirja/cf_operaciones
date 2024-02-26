@@ -57,9 +57,34 @@ def main(codigo,codigo_proyecto=None):
         
     col1,col2 = st.columns([4,1])
     with col2:
-        if st.button('Clientes'):
-            webbrowser.open("https://operaciones.streamlit.app/Clientes")
-
+        style_button_dir = """
+        <style>
+        .custom-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #68c8ed;
+            color: #ffffff; 
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 20px;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .custom-button:visited {
+            color: #ffffff;
+        }
+        </style>
+        """
+        nombre = 'Clientes'
+        html = f"""<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">{style_button_dir}</head><body><a href="http://localhost:8501/Clientes" class="custom-button" target="_self">{nombre}</a></body></html>"""
+        html = BeautifulSoup(html, 'html.parser')
+        st.markdown(html, unsafe_allow_html=True)
+            
     #-------------------------------------------------------------------------#
     # Informacion inversionista
     col1,col2,col3 = st.columns([1,20,2])
