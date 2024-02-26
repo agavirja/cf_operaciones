@@ -62,11 +62,11 @@ def main(codigo,codigo_proyecto=None):
         .custom-button {
             display: inline-block;
             padding: 10px 20px;
-            background-color: #68c8ed;
+            background-color: #B98C65;
             color: #ffffff; 
             font-weight: bold;
             text-decoration: none;
-            border-radius: 20px;
+            border-radius: 10px;
             width: 100%;
             border: none;
             cursor: pointer;
