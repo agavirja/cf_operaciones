@@ -88,7 +88,7 @@ def update_historico(inputvar,codigo_cliente,codigo_proyecto,tabla,data,userchan
                                 'tabla':tabla,
                                 'updated_at':datetime.now().strftime('%Y-%m-%d'),
                                 'userchange':userchange,
-                                'json':json.dumps(dataupdate, orient='records')}])
+                                'json':json.dumps(dataupdate.to_json(orient='records'))}])
     engine = create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}/{schema}')
     dataexport.to_sql('cj_historic_update',engine,if_exists='append', index=False)
     engine.dispose()
