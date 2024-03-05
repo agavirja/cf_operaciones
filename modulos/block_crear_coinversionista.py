@@ -114,6 +114,10 @@ def main(codigo_proyecto,userchange):
                         datafinanciacion = pd.DataFrame([{'cj_clientes_codigo':codigo_cliente,'codigo_proyecto':codigo_proyecto,'created_at':datetime.now().strftime('%Y-%m-%d')}])
                         datafinanciacion.to_sql('cj_financiacion', engine, if_exists='append', index=False, chunksize=1)
                               
+                            # Configuracion
+                        dataconfig = pd.DataFrame([{'cj_clientes_codigo':codigo_cliente,'codigo_proyecto':codigo_proyecto,'json':json.dumps(dataconfiguracion()),'created_at':datetime.now().strftime('%Y-%m-%d')}])
+                        dataconfig.to_sql('cj_configuracion', engine, if_exists='append', index=False, chunksize=1)
+
                             # Historico
                         resultado = []
                         formato   = [{'tabla':'cj_pbc','data':json.dumps(datapbc.to_json(orient='records'))},

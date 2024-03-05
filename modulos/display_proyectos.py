@@ -12,7 +12,7 @@ def main(dataproyectos,titulo=''):
             html_tabla += f""" 
             <tr>
               <td class="align-middle text-center text-sm" style="border: none;padding: 8px;">
-                 <a href="https://operaciones.streamlit.app/Proyectos?codigo={i['codigo_proyecto']}" target="_blank">
+                 <a href="https://operaciones.streamlit.app/Proyectos?codigo_proyecto={i['codigo_proyecto']}" target="_blank">
                  <img src="https://operaciones.fra1.digitaloceanspaces.com/_icons/usuario.png" alt="link" width="20" height="20">
                  </a>                    
               </td>

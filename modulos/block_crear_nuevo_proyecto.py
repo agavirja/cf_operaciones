@@ -99,12 +99,17 @@ def main(codigo_cliente,datacliente,userchange):
                 dataconfig = pd.DataFrame([{'cj_clientes_codigo':codigo_cliente,'codigo_proyecto':codigo_proyecto,'json':json.dumps(dataconfiguracion()),'created_at':datetime.now().strftime('%Y-%m-%d')}])
                 dataconfig.to_sql('cj_configuracion', engine, if_exists='append', index=False, chunksize=1)
 
+                    # Calculadora
+                datacalculadora = pd.DataFrame([{'codigo_proyecto':codigo_proyecto,'created_at':datetime.now().strftime('%Y-%m-%d')}])
+                datacalculadora.to_sql('cj_calculadora', engine, if_exists='append', index=False, chunksize=1)
+
                     # Historico
                 resultado = []
                 formato   = [{'tabla':'cj_proyecto','data':json.dumps(dataproyecto.to_json(orient='records'))},
                              {'tabla':'cj_pbc','data':json.dumps(datapbc.to_json(orient='records'))},
                              {'tabla':'cj_proyecto_cliente','data':json.dumps(dataproyectocliente.to_json(orient='records'))},
-                             {'tabla':'cj_tipoinversionista','data':json.dumps(datacoinversion.to_json(orient='records'))}]
+                             {'tabla':'cj_tipoinversionista','data':json.dumps(datacoinversion.to_json(orient='records'))},
+                             {'tabla':'cj_calculadora','data':json.dumps(datacalculadora.to_json(orient='records'))},]
                 for items in formato:
                     
                     resultado.append({'cj_clientes_codigo':codigo_cliente,
