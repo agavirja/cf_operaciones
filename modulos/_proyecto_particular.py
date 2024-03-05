@@ -3,8 +3,36 @@ from bs4 import BeautifulSoup
 
 def main(codigo):
     
-    st.write(codigo)
-    
+    col1,col2 = st.columns([4,1])
+    with col2:
+        style_button_dir = """
+        <style>
+        .custom-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #B98C65;
+            color: #ffffff; 
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 10px;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .custom-button:visited {
+            color: #ffffff;
+        }
+        </style>
+        """
+        nombre = 'Clientes'
+        html = f"""<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">{style_button_dir}</head><body><a href="https://operaciones.streamlit.app/Proyectos" class="custom-button" target="_self">Proyectos</a></body></html>"""
+        html = BeautifulSoup(html, 'html.parser')
+        st.markdown(html, unsafe_allow_html=True)
+            
     #---------------------------------------------------------------------#
     # Calculadora
     style = """
