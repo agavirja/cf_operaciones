@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy_financial as npf
 import json
 from bs4 import BeautifulSoup
 
@@ -29,6 +30,7 @@ def main(codigo_proyecto=None,userchange=None):
         "habitaciones":[[{'tipohabitacion':'Doble','numerohabitaciones':3,'valorhabitacion':690},{'tipohabitacion':'Sencilla','numerohabitaciones':2,'valorhabitacion':565}]],
         "margenxhabitacion":[130],
         "iva_renta_mensual":[IVA*100],
+        "suministros":[60],
         "servicios":[[{"variable": "Electricidad", "value": 70, "IVA": IVA*100},{"variable": "Gas", "value": 80, "IVA": IVA*100},{"variable": "Agua", "value": 30, "IVA": 10},{"variable": "Limpieza", "value": 50, "IVA": IVA*100},{"variable": "CRM", "value": 15, "IVA": IVA*100},{"variable": "Gestor", "value": 50, "IVA": IVA*100},{"variable": "Portero/Responsable", "value": 0, "IVA": IVA*100},{"variable": "Seguro", "value": 15, "IVA": 0},{"variable": "Internet", "value": 30, "IVA": IVA*100}]],
         "firmacontrato":[[{"variable": "Mes en Curso","cantidad":1, "value": 0, "IVA": IVA*100},{"variable": "Depósito","cantidad":1, "value": 0.0, "IVA": 0},{"variable": "Fianza","cantidad":1, "value": 0.0, "IVA": 0},{"variable": "Agencia","cantidad":1, "value": 0.0, "IVA": IVA*100}]],
         "factordescuento":[10.0],
@@ -39,6 +41,16 @@ def main(codigo_proyecto=None,userchange=None):
         "ibi":[0],
         "basegestoriames":[150],
         "carry":[0],
+        "aporte":[40],
+        "plazo_credito":[20],
+        "tasa_credito":[3.25],
+        "seguromensual":[30],
+        "IBI":[400/12],
+        "comunidadvecinos":[80],
+        "ahorro_disponible":[200000],
+        "per_itp":[7],
+        "per_inmobiliaria":[3],
+        "ingresonetomes":[0],
     }
 
     data      = pd.DataFrame(data)
@@ -263,6 +275,14 @@ def main(codigo_proyecto=None,userchange=None):
     with col3:
         monto_renta_mensual = st.number_input('Flujo mes inversión',value=valor_total_recaudado-spread_renttee,disabled=True)
      
+    with col1:
+        suministros = st.number_input('Suministros',value=float(data['suministros'].iloc[0]))
+        data.loc[0,'suministros'] = suministros
+    with col2:
+        valor_total_suministros = st.number_input('Valor total suministros',value=suministros*num_prod,disabled=True)
+    with col3:
+        monto_renta_mensual = st.number_input('Flujo mes inversión menos suministros',value=valor_total_recaudado-spread_renttee-valor_total_suministros,disabled=True)
+
     #-------------------------------------------------------------------------#
     # 4. Alquiler
     st.write('---')
@@ -279,294 +299,160 @@ def main(codigo_proyecto=None,userchange=None):
     with col4:
         valor_iva_mensual = st.number_input('IVA renta',value=(monto_renta_mensual-base_renta_mensual) ,disabled=True)
     
-    #-------------------------------------------------------------------------#
-    # 5. Gastos mes
-    st.write('---')
-    st.write('Gastos Mes')
-    result_services = []
-    with st.expander('Servicios mensuales'):
-        formato = data['servicios'].iloc[0]
-        conteo = 0
-        for j in formato:
-            conteo += 1
-            col1, col2, col3, col4, col5 = st.columns(5)
-            with col1: 
-                tipo_servicio = st.text_input('Tipo de servicio',key=f'tipo_servicio_({conteo+1})',value=j["variable"])
-            with col2:
-                valor_servicio  = st.number_input('Valor del servicio',key=f'valor_servicio_({conteo+1})',value=j['value'])
-            with col3:
-                iva_servicio  = st.number_input('IVA del servicio',key=f'iva_servicio_({conteo+1})',value=j['IVA'])
-            with col4:
-                base_servicio  = st.number_input('Base',key=f'base_servicio_({conteo+1})',value=valor_servicio/(1+(iva_servicio/100)),disabled=True)
-            with col5:
-                pagoiva_servicio  = st.number_input('IVA',key=f'pagoiva_servicio_({conteo+1})',value=valor_servicio-base_servicio,disabled=True)
-            result_services.append({'variable':tipo_servicio,'value':valor_servicio,'IVA':iva_servicio,'base_servicio':base_servicio,'pagoiva_servicio':pagoiva_servicio})
-    
-    data.loc[0,'servicios'] = json.dumps(result_services)
-    valor_total_servicio = 0
-    valor_base_servicio  = 0
-    valor_IVA_servicio   = 0
-    for j in result_services:
-        if 'value' in j:
-            valor_total_servicio += j['value']
-        if 'base_servicio' in j:
-            valor_base_servicio += j['base_servicio']
-        if 'pagoiva_servicio' in j:
-            valor_IVA_servicio += j['pagoiva_servicio'] 
-            
-    col1, col2, col3 = st.columns(3)
     with col1:
-        st.number_input('Total valor de los servicios mensuales',value=valor_total_servicio,disabled=True)
-    with col2: 
-        st.number_input('Total valor de los servicios Base',value=valor_base_servicio,disabled=True)
-    with col3: 
-        st.number_input('Total IVA de los servicios mensuales',value=valor_IVA_servicio,disabled=True)
+        roi = st.number_input('ROI',value=(base_renta_mensual*12/total_cashflow_iva)*100,disabled=True)
+        
         
     #-------------------------------------------------------------------------#
-    # 6. Costo firma de contrato
+    # 5. Resumen
     st.write('---')
-    st.write('Costo Firma de Contrato')
-    result_tabla_contrato = []
-    formato = data["firmacontrato"].iloc[0]
-    for i in formato:
-        if "Mes en Curso" in i["variable"]:
-            i["value"] = monto_renta_mensual
-    conteo = 0
-    for j in formato:
-        conteo += 1
-        isdisabled = False
-        col1, col2, col3, col4, col5,col6 = st.columns(6)
-        with col1: 
-            tabla_contrato_tipo = st.text_input('Descripción',key=f'tabla_contrato_tipo_({conteo+1})',value=j["variable"])
-        with col2:
-            options = [1,0]
-            value   = j['cantidad']
-            index   = 0
-            if value is not None and value!='':
-                index = options.index(value)
-            tabla_contrato_cantidad = st.selectbox('Cantidad',key=f'tabla_contrato_cantidad_({conteo+1})',options=options,index=index)
-        if tabla_contrato_cantidad==0: isdisabled = True
-        with col3:
-            tabla_contrato_monto  = st.number_input('Monto',key=f'tabla_contrato_monto_({conteo+1})',value=j['value']*tabla_contrato_cantidad,disabled=isdisabled)
-        with col4:
-            tabla_contrato_iva  = st.number_input('IVA',key=f'tabla_contrato_iva_({conteo+1})',value=j["IVA"],disabled=isdisabled)
-        with col5:
-            tabla_contrato_base  = st.number_input('Base',key=f'tabla_contrato_base_({conteo+1})',value=tabla_contrato_monto/(1+(tabla_contrato_iva/100)),disabled=True)
-        with col6:
-            tabla_contrato_pagoiva  = st.number_input('Pago IVA',key=f'tabla_contrato_pagoiva_({conteo+1})',value=tabla_contrato_monto-tabla_contrato_base,disabled=True)
-        result_tabla_contrato.append({'variable':tabla_contrato_tipo,'cantidad':tabla_contrato_cantidad,'value':tabla_contrato_monto,'IVA':tabla_contrato_iva,'tabla_contrato_base':tabla_contrato_base,'tabla_contrato_pagoiva':tabla_contrato_pagoiva})
-        
-    data.loc[0,'firmacontrato'] = json.dumps(result_tabla_contrato)
-    valor_total_tabla_contrato = 0
-    valor_base_tabla_contrato  = 0
-    valor_IVA_tabla_contrato   = 0
-    for j in result_tabla_contrato:
-        if 'value' in j:
-            valor_total_tabla_contrato += j['value']
-        if 'tabla_contrato_base' in j:
-            valor_base_tabla_contrato += j['tabla_contrato_base']
-        if 'tabla_contrato_pagoiva' in j:
-            valor_IVA_tabla_contrato += j['tabla_contrato_pagoiva'] 
-            
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.number_input('Total Monto',key='monto_tabla_contrato',value=valor_total_tabla_contrato,disabled=True)
-    with col2: 
-        st.number_input('Total Base',key='base_tabla_contrato',value=valor_base_tabla_contrato,disabled=True)
-    with col3: 
-        st.number_input('Total IVA',key='iva_tabla_contrato',value=valor_IVA_tabla_contrato,disabled=True)
-                     
-        
-    #-------------------------------------------------------------------------#
-    # 7. Simulacion
-    st.write('---')
-    st.write('Simulacion')
-
-    facto_descuento = st.number_input('Factor de descuento', value=float(data['factordescuento'].iloc[0]),min_value=0.0,step=0.1)
-    data.loc[0,'factordescuento'] = facto_descuento
-    facto_descuento = facto_descuento/100
-    
+    st.write('RESUMEN PROYECTO')
     col1,col2 = st.columns(2)
     with col1:
-        ipc_alquiler_1 = st.number_input('Incre Alquileres (ano 1)', value=float(data['incrementoalquileresano1'].iloc[0]),min_value=0.0,step=0.1)
-        data.loc[0,'incrementoalquileresano1'] = ipc_alquiler_1
-    with col2:
-        ipc_general_1 = st.number_input('IPC (ano 1)', value=float(data['ipcano1'].iloc[0]),min_value=0.0,step=0.1)
-        data.loc[0,'ipcano1'] = ipc_general_1
-        
-    col1,col2 = st.columns(2)
-    with col1:
-        ipc_alquiler_2 = st.number_input('Incre Alquileres (ano 2)', value=float(data['incrementoalquileresano2'].iloc[0]),min_value=0.0,step=0.1)
-        data.loc[0,'incrementoalquileresano2'] = ipc_alquiler_2
-    with col2:
-        ipc_general_2 = st.number_input('IPC (ano 2)', value=float(data['ipcano2'].iloc[0]),min_value=0.0,step=0.1)
-        data.loc[0,'ipcano2'] = ipc_general_2
-        
-    ipc_alquiler = [1]+[1]*12+[1+(ipc_alquiler_1/100)]*12+ [(1+(ipc_alquiler_1/100))*(1+(ipc_alquiler_2/100))]*12 
-    ipc_general  = [1]+[1]*12+[1+(ipc_general_1/100)]*12+ [(1+(ipc_general_1/100))*(1+(ipc_general_2/100))]*12 
+        st.number_input('Precio de compra',value=precio_compra,disabled=True,key='r-preciocompra')
+        st.number_input('ITP / Registro',value=itp_registro,disabled=True,key='r-itp')
+        st.number_input('Comision Venta',value=comision_iva,disabled=True,key='r-comisionventa')
+        st.number_input('Seguro',value=seguro,disabled=True,key='r-seguro')
+        st.number_input('Comision Hipoteca',value=comision_hipoteca,disabled=True,key='r-comisionhip')
+        st.number_input('Gasto Obra',value=valor_obra_total_iva,disabled=True,key='r-gastoobra')
+        st.number_input('Fee CF',value=fee_cf_iva,disabled=True,key='r-feecf')
+        st.number_input('TOTAL INV',value=total_cashflow_iva,disabled=True,key='r-totalinv')
+        st.number_input('Superficie Obra (m²)',value=superficie_real,disabled=True,key='r-superficieobra')
 
-    filas    = ['IVA adeudado (-) Habs', 'Base Facturación Habs', 'Facturación Habs', 'IVA Alquiler (+)', 'Base Alquiler', 'Alquiler Mensual', 'IVA Gastos (+)', 'Base Gastos', 'Gastos Mensuales', 'IVA Firma Contrato (+)', 'Base Firma Contrato', 'Total Costo Firma Contrato', 'Saldo IVA Periodo', 'IVA a favor acumulado', 'Saldo Contable Periodo', 'Saldo Caja Periodo', 'FC IVA', 'FC Contable', 'FC Real']
-    columnas = list(range(1, 37))
-    df       = pd.DataFrame(index=filas, columns=columnas)
-    
-    # Mes 1:
-    i_0            = ['IVA adeudado (-) Habs', 'Base Facturación Habs', 'Facturación Habs', 'IVA Alquiler (+)', 'Base Alquiler', 'Alquiler Mensual', 'IVA Gastos (+)', 'Base Gastos', 'Gastos Mensuales']
-    df.loc[i_0, 1] = 0
-    df.loc['IVA Firma Contrato (+)', 1]     = valor_IVA_tabla_contrato
-    df.loc['Base Firma Contrato', 1]        = valor_base_tabla_contrato
-    df.loc['Total Costo Firma Contrato', 1] = valor_total_tabla_contrato
-    df.loc['Saldo IVA Periodo', 1]          = valor_IVA_tabla_contrato
-    df.loc['IVA a favor acumulado', 1]      = valor_IVA_tabla_contrato
-    df.loc['Saldo Contable Periodo', 1]     = (-1)*valor_base_tabla_contrato
-    df.loc['Saldo Caja Periodo', 1]         = (-1)*valor_total_tabla_contrato
-    df.loc['FC IVA', 1]                     = valor_IVA_tabla_contrato
-    df.loc['FC Contable', 1]                = (-1)*valor_base_tabla_contrato
-    df.loc['FC Real', 1]                    = (-1)*valor_total_tabla_contrato
 
-    # Mes 2:
-    df.loc['Base Facturación Habs', 2] = (valor_total_recaudado/(1+facto_descuento))*2
-    df.loc['Facturación Habs', 2]      = valor_total_recaudado+(valor_total_recaudado/(1+facto_descuento))
-    df.loc['IVA adeudado (-) Habs', 2] = df.loc['Facturación Habs', 2]-df.loc['Base Facturación Habs', 2]
-    
-    df.loc['Base Alquiler', 2]    = base_renta_mensual
-    df.loc['Alquiler Mensual', 2] = monto_renta_mensual
-    df.loc['IVA Alquiler (+)', 2] = df.loc['Alquiler Mensual', 2]-df.loc['Base Alquiler', 2]
-    
-    df.loc['Base Gastos', 2]      = valor_base_servicio
-    df.loc['Gastos Mensuales', 2] = valor_total_servicio
-    df.loc['IVA Gastos (+)', 2]   = df.loc['Gastos Mensuales', 2]-df.loc['Base Gastos', 2]
-    
-    df.loc['IVA Firma Contrato (+)', 2]     = 0
-    df.loc['Base Firma Contrato', 2]        = 0
-    df.loc['Total Costo Firma Contrato', 2] = 0
-
-    df.loc['Saldo IVA Periodo', 2]          = (-1)*df.loc['IVA adeudado (-) Habs', 2] + df.loc['IVA Alquiler (+)', 2] + df.loc['IVA Gastos (+)', 2] + df.loc['IVA Firma Contrato (+)', 2] 
-    df.loc['IVA a favor acumulado', 2]      = df.loc['IVA a favor acumulado', 1]+df.loc['Saldo IVA Periodo', 2]
-
-    df.loc['Saldo Contable Periodo', 2]     = df.loc['Base Facturación Habs', 2]-df.loc['Base Alquiler', 2]-df.loc['Base Gastos', 2]-df.loc['Base Firma Contrato', 2]
-    df.loc['Saldo Caja Periodo', 2]         = df.loc['Facturación Habs', 2]-df.loc['Alquiler Mensual', 2]-df.loc['Gastos Mensuales', 2]-df.loc['Total Costo Firma Contrato', 2]
-
-    df.loc['FC IVA', 2]                     = df.loc['FC IVA', 1]+df.loc['Saldo IVA Periodo', 2]
-    df.loc['FC Contable', 2]                = df.loc['FC Contable', 1]+df.loc['Saldo Contable Periodo', 2]
-    df.loc['FC Real', 2]                    = df.loc['FC Real', 1]+df.loc['Saldo Caja Periodo', 2]
-    
-    # Mes 3 a 36:
-    for i in range(3,37):
-        df.loc['Base Facturación Habs', i] = (valor_total_recaudado/(1+facto_descuento))*ipc_alquiler[i]
-        df.loc['Facturación Habs', i]      = valor_total_recaudado*ipc_alquiler[i]
-        df.loc['IVA adeudado (-) Habs', i] = df.loc['Facturación Habs', i]-df.loc['Base Facturación Habs', i]
-
-        df.loc['Base Alquiler', i]    = base_renta_mensual*ipc_general[i]
-        df.loc['Alquiler Mensual', i] = monto_renta_mensual*ipc_general[i]
-        df.loc['IVA Alquiler (+)', i] = df.loc['Alquiler Mensual', i]-df.loc['Base Alquiler', i]
-
-        df.loc['Base Gastos', i]      = valor_base_servicio
-        df.loc['Gastos Mensuales', i] = valor_total_servicio
-        df.loc['IVA Gastos (+)', i]   = df.loc['Gastos Mensuales', i]-df.loc['Base Gastos', i]
- 
-        df.loc['IVA Firma Contrato (+)', i]     = 0
-        df.loc['Base Firma Contrato', i]        = 0
-        df.loc['Total Costo Firma Contrato', i] = 0
-
-        df.loc['Saldo IVA Periodo', i]          = (-1)*df.loc['IVA adeudado (-) Habs', i] + df.loc['IVA Alquiler (+)', i] + df.loc['IVA Gastos (+)', i] + df.loc['IVA Firma Contrato (+)', i] 
-        df.loc['IVA a favor acumulado', i]      = df.loc['IVA a favor acumulado', i-1]+df.loc['Saldo IVA Periodo', i]
-
-        df.loc['Saldo Contable Periodo', i]     = df.loc['Base Facturación Habs', i]-df.loc['Base Alquiler', i]-df.loc['Base Gastos', i]-df.loc['Base Firma Contrato', i]
-        df.loc['Saldo Caja Periodo', i]         = df.loc['Facturación Habs', i]-df.loc['Alquiler Mensual', i]-df.loc['Gastos Mensuales', i]-df.loc['Total Costo Firma Contrato', i]
-
-        df.loc['FC IVA', i]                     = df.loc['FC IVA', i-1]+df.loc['Saldo IVA Periodo', i]
-        df.loc['FC Contable', i]                = df.loc['FC Contable', i-1]+df.loc['Saldo Contable Periodo', i]
-        df.loc['FC Real', i]                    = df.loc['FC Real', i-1]+df.loc['Saldo Caja Periodo', i]
-
-    st.dataframe(df)
-    
     #-------------------------------------------------------------------------#
-    # 8. Renttee
+    # 6. Crédito Hipotecário
+    
     st.write('---')
-    st.write('Renttee')
-
-    filas      = ['Flujo Contable / mes','Saldo IVA / mes','FC Real / mes']
-    columnas   = list(range(1, 4))
-    df_renttee = pd.DataFrame(index=filas, columns=columnas)
-
-    df_renttee.loc['Flujo Contable / mes',1] = df.loc['Saldo Contable Periodo',3]
-    df_renttee.loc['Flujo Contable / mes',2] = df.loc['Saldo Contable Periodo',13]
-    df_renttee.loc['Flujo Contable / mes',3] = df.loc['Saldo Contable Periodo',25]
- 
-    df_renttee.loc['Saldo IVA / mes',1] = df.loc['Saldo IVA Periodo',3]
-    df_renttee.loc['Saldo IVA / mes',2] = df.loc['Saldo IVA Periodo',13]
-    df_renttee.loc['Saldo IVA / mes',3] = df.loc['Saldo IVA Periodo',25]
- 
-    df_renttee.loc['FC Real / mes',1] = df.loc['Saldo Caja Periodo',3]
-    df_renttee.loc['FC Real / mes',2] = df.loc['Saldo Caja Periodo',13]
-    df_renttee.loc['FC Real / mes',3] = df.loc['Saldo Caja Periodo',25]    
-    
-    st.dataframe(df_renttee)
-    
-    #-------------------------------------------------------------------------#
-    # 9. Metricas
-    st.write('---')
-    st.write('Metricas')
-    result_tabla_metricas = []
-    precio_compra = 1 if precio_compra==0 else precio_compra
-    
+    st.write('Simulador cuota del crédito hipotecário')
     col1,col2,col3 = st.columns(3)
     with col1:
-        ibi = st.number_input("IBI",value=float(data['ibi'].iloc[0]),min_value=0.0,step=0.1)
-        data.loc[0,'ibi'] = ibi
+        plazo_credito = st.selectbox('Plazo del crédito (años)',options=[5,10,15,20,30],index=3,key='plazo-simulacioncredithip')
+
+    df = pd.DataFrame([40,35,30,25,20,15,10,5],columns=['Aporte'])
+    df['Monto a Financiar'] = (1-df['Aporte']/100)*precio_compra
+    
+    for tasa_credito in [3.25,3.5,3.75,4,4.25,4.5]:
+        tasa_interes = (tasa_credito/100)/12   
+        df[f'{tasa_credito}%'] = df['Monto a Financiar'].apply(lambda x: round(npf.pmt(tasa_interes, plazo_credito*12,x),2))
+    st.dataframe(df,width=1200,hide_index=True)
+    
+    st.write('---')
+    st.write('Crédito Hipotecário')
+    col1,col2,col3 = st.columns(3)
+ 
+    with col1:
+        options = [5,10,15,20,25,30,35,40]
+        value   = data['aporte'].iloc[0]
+        index   = 0
+        if value is not None and value!='':
+            index = options.index(value)
+        aporte = st.selectbox('Aporte (%)',options=options,index=index)
+        data.loc[0,'aporte'] = aporte
+        
     with col2:
-        basegestoriames = st.number_input("Base Gestoria Mes",value=float(data['basegestoriames'].iloc[0]),min_value=0.0,step=0.1)
-        data.loc[0,'basegestoriames'] = basegestoriames
+        options = [5,10,15,20,30]
+        value   = data['plazo_credito'].iloc[0]
+        index   = 0
+        if value is not None and value!='':
+            index = options.index(value)
+        plazo_credito = st.selectbox('Plazo del crédito (años)',options=options,index=index)
+        data.loc[0,'plazo_credito'] = plazo_credito
+
     with col3:
-        carry = st.number_input("Carry",value=float(data['carry'].iloc[0]),min_value=0.0,step=0.1)
-        data.loc[0,'carry'] = carry
+        options = [3.25,3.5,3.75,4,4.25,4.5,5,5.5,6]
+        value   = data['tasa_credito'].iloc[0]
+        index   = 0
+        if value is not None and value!='':
+            index = options.index(value)
+        tasa_credito = st.selectbox('Tasa del crédito (%)',options=options,index=index)
+        data.loc[0,'tasa_credito'] = tasa_credito
+    
+    tasa_interes = (tasa_credito/100)/12  
+    numero_pagos = plazo_credito*12  
+    pago         = npf.pmt(tasa_interes, numero_pagos,precio_compra*(1-(aporte/100)))
+    
+    col1,col2 = st.columns(2)
+    with col1:
+        st.number_input('HIPOTECA AL',value=100-aporte,disabled=True,key='h-hipotecaal')
+        st.number_input('Precio Compra',value=precio_compra,disabled=True,key='h-preciocompra')
+        st.number_input('Banco',value=precio_compra*(1-(aporte/100)),disabled=True,key='h-banco')
+        st.number_input('Aporte',value=precio_compra*(aporte/100),disabled=True,key='h-aporte')
+        presupuestototal = st.number_input('Presupuesto Total',value=total_cashflow_iva-precio_compra*(1-(aporte/100)),disabled=True,key='h-presupuesto')
+        pesoinversor     = st.number_input('Peso TOTAL Inversor',value=(total_cashflow_iva-precio_compra*(1-(aporte/100)))/total_cashflow_iva*100,disabled=True,key='h-pesopresupuesto')
+        st.number_input('Peso Banco',value=(100-pesoinversor),disabled=True,key='h-pesobanco')
+
+    with col2:
+        st.number_input('Alquiler Mensual Base',value=base_renta_mensual,disabled=True,key='h-alquilermensual')
+        st.number_input('Alquiler Anual Base',value=base_renta_mensual*12,disabled=True,key='h-alquileranual')
+        st.number_input('Tasa de Interes',value=tasa_credito,disabled=True,key='h-tasainteres')
+        st.number_input('Hipoteca Mensual',value=pago,disabled=True,key='h-hipotecamensual')
+        st.number_input('Hipoteca Anual',value=pago*12,disabled=True,key='h-hipotecaanual')
+        flujocajamensual = st.number_input('Flujo de Caja Mensual',value=base_renta_mensual+pago,disabled=True,key='h-flujocajamensual')
+        st.number_input('Flujo de Caja Anual',value=flujocajamensual*12,disabled=True,key='h-flujocajaanual')
+
+        st.number_input('Cash on Cash',value=base_renta_mensual*12/presupuestototal*100,disabled=True,key='h-cashoncash')
+        st.number_input('ROI proyecto',value=roi,disabled=True,key='h-roi')
+
+        seguromensual = st.number_input("Seguro Mensual",value=data['seguromensual'].iloc[0])
+        data.loc[0,'seguromensual'] = seguromensual
         
-    fotmato = [
-        {'variable':'Base alquiler mes','disabled':True,'value':base_renta_mensual},
-        {'variable':'Base alquiler anual','disabled':True,'value':base_renta_mensual*12},
-        {'variable':'Alquiler mes IVA','disabled':True,'value':monto_renta_mensual},
-        {'variable':'Alquiler anual IVA','disabled':True,'value':monto_renta_mensual*12},
-        {'variable':'Precio Compra','disabled':True,'value':precio_compra},
-        {'variable':'Yield','disabled':True,'value':valor_renta_total*12/precio_compra*100},
-        {'variable':'Gestoria Mes (IVA)','disabled':True,'value':basegestoriames*(1+IVA)},
-        {'variable':'ROI','disabled':True,'value': base_renta_mensual*12/total_cashflow_iva*100}
-            ]
-    
-    col1, col2 = st.columns(2)
-    for j in fotmato:
-        with col1: 
-            variable = j['variable']
-            disabled = j['disabled']
-            value    = j['value']
-            st.number_input(variable,key=f'{variable}_seccion8',value=value,disabled=disabled)
-        result_tabla_metricas.append(j)
-    
-    fotmato = [
-        {'variable':'Ing Alq Aµo 1','disabled':True,'value':df.loc['Base Alquiler',[1,2,3,4,5,6,7,8,9,10,11,12]].sum()},
-        {'variable':'Ing Alq Aµo 2','disabled':True,'value':df.loc['Base Alquiler',[13,14,15,16,17,18,19,20,21,22,23,24]].sum()},
-        {'variable':'Ing Alq Aµo 3','disabled':True,'value':df.loc['Base Alquiler',[25,26,27,28,29,30,31,32,33,34,35,36]].sum()},
-        {'variable':'Total Ing Alq','disabled':True,'value':df.loc['Base Alquiler',:].sum()},
-        {'variable':'Ingresos x Venta','disabled':True,'value':0},
-        {'variable':'Total Ingresos','disabled':True,'value':0},
-        {'variable':'Base Gestoria Aµo','disabled':True,'value':0},
-        {'variable':'Gestoria Aµo (IVA)','disabled':True,'value':0},
-        {'variable':'C Oper + IBI','disabled':True,'value':0},
-        {'variable':'Rent Neta','disabled':True,'value':0},
-            ]
-    for j in fotmato:
-        with col2: 
-            variable = j['variable']
-            disabled = j['disabled']
-            value    = j['value']
-            st.number_input(variable,key=f'{variable}_seccion8',value=value,disabled=disabled)
-        result_tabla_metricas.append(j)
+        ibi = st.number_input("IBI",value=data['IBI'].iloc[0])
+        data.loc[0,'IBI'] = ibi
+
+        comunidadvecinos = st.number_input("Comudidad Vecinos",value=data['comunidadvecinos'].iloc[0])
+        data.loc[0,'comunidadvecinos'] = comunidadvecinos
         
-    
+        totalgastosmensual = st.number_input('TOTAL Gastos mes',value=seguromensual+ibi+comunidadvecinos,disabled=True,key='h-totalgastosmes')
+
+        st.number_input('CASH FLOW NETO MES',value=flujocajamensual-totalgastosmensual,disabled=True,key='h-fliujocajamensualneto')
+        #st.number_input('SALDO PRESUPUESTO',value=flujocajamensual-totalgastosmensual,disabled=True,key='h-totalgastosmes')
+        
+        
+    #-------------------------------------------------------------------------#
+    # 7. Diagnostico
+    st.write('---')
+    st.write('DIAGNOSTICO')
+    col1,col2 = st.columns(2)
+    with col1:
+        ahorro_disponible = st.number_input("Ahorro disponible",value=data['ahorro_disponible'].iloc[0])
+        data.loc[0,'ahorro_disponible'] = ahorro_disponible
+        per_itp = st.number_input("ITP (%)",value=data['per_itp'].iloc[0])
+        data.loc[0,'per_itp'] = per_itp
+        per_inmobiliaria = st.number_input("Comisión inmobiliaria",value=data['per_inmobiliaria'].iloc[0])
+        data.loc[0,'per_inmobiliaria'] = per_inmobiliaria
+        porcentaje_fee_cf = st.number_input("Capital Friend",value=float(data['feecf'].iloc[0]),min_value=0.0,step=0.1,disabled=True,key='h-feecapitalfriend')
+        st.number_input('% Aporte Hipoteca',value=aporte,disabled=True,key='h-aportediag')
+        st.number_input("Obra (IVA incluido)", value=valor_obra_total_iva,disabled=True,key='h-obradiag')
+        preciomaximo = (ahorro_disponible-valor_obra_total_iva)/( (per_itp/100)+((per_inmobiliaria/100)*1.21)+((porcentaje_fee_cf/100)*1.21)+(aporte/100))
+        st.number_input("Precio Maximo", value=preciomaximo,disabled=True,key='h-preciomaxdiag')
+
+        st.write("")
+        st.write("")
+        st.write("")
+        ingresonetomes = st.number_input("Ingreso Neto Mes", value=data['ingresonetomes'].iloc[0],key='h-ingresomax')
+        data.loc[0,'ingresonetomes'] = ingresonetomes
+        cuotamaxima = st.number_input("Cuota maxima", value=-ingresonetomes*0.35,disabled=True,key='h-cuotamax')
+
+    with col2:
+        st.text_input(" ",value="",disabled=True,key='h-nonvalue1')
+        st.number_input("ITP",value=preciomaximo*per_itp/100,disabled=True,key='h-itpvalor')
+        st.number_input("Comisión inmobiliaria",value=preciomaximo*per_inmobiliaria*1.21/100,disabled=True,key='h-comisioninmob')
+        st.number_input("Capital Friend",value=preciomaximo*porcentaje_fee_cf*1.21/100,disabled=True,key='h-capitalfrienddiag')
+        st.number_input('% Aporte Hipoteca',value=preciomaximo*aporte/100,disabled=True,key='h-aportediagvalor')
+        st.number_input("Obra (IVA incluido)", value=valor_obra_total_iva,disabled=True,key='h-obradiagvalor')
+
+
+    #-------------------------------------------------------------------------#
+    # Guardar data
+    st.write('---')
+    st.write('Guardar calculadora en proyecto')
+    col1,col2 = st.columns(2)
     col1,col2 = st.columns(2)
     with col1:
         nombreproyecto     = None
         datalistaproyectos = listaproyectos()
-        
+        datalistaproyectos = datalistaproyectos[datalistaproyectos['nombre_proyecto'].notnull()]
         if codigo_proyecto is not None:
             datalistaproyectos = datalistaproyectos[datalistaproyectos['codigo_proyecto']==codigo_proyecto]
             
@@ -583,3 +469,4 @@ def main(codigo_proyecto=None,userchange=None):
             codigo_cliente = None
             codigo_proyecto = datalistaproyectos[datalistaproyectos['nombre_proyecto']==nombreproyecto]['codigo_proyecto'].iloc[0]
             updateinfoinversionista(inputvar,codigo_name,codigo_cliente,codigo_proyecto,'cj_calculadora',data,userchange,'button_info_calculadora')
+            

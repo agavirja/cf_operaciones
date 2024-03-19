@@ -32,9 +32,8 @@ def main(codigo):
         html = f"""<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">{style_button_dir}</head><body><a href="https://operaciones.streamlit.app/Proyectos" class="custom-button" target="_self">Proyectos</a></body></html>"""
         html = BeautifulSoup(html, 'html.parser')
         st.markdown(html, unsafe_allow_html=True)
-            
-    #---------------------------------------------------------------------#
-    # Calculadora
+
+
     style = """
     <style>
       .container {
@@ -72,9 +71,15 @@ def main(codigo):
     <body>
     <div class="container">
       <div class="image-container">
-        <a href="https://operaciones.streamlit.app/Calculadora_financiera?codigo_proyecto={codigo}&type=profile">
+        <a href="https://operaciones.streamlit.app/Calculadora_financiera?codigo_proyecto={codigo}">
           <img src="https://operaciones.fra1.digitaloceanspaces.com/_icons/calculadora.png" alt="">
           <p>Calculadora Financiera</p>
+        </a>
+      </div>
+      <div class="image-container">
+        <a href="https://operaciones.streamlit.app/Dashboard_ofertas?codigo_proyecto={codigo}">
+          <img src="https://operaciones.fra1.digitaloceanspaces.com/_icons/ubicacion.png" alt="">
+          <p>Oportunidades</p>
         </a>
       </div>
     </div>
@@ -83,5 +88,3 @@ def main(codigo):
     """
     texto = BeautifulSoup(html, 'html.parser')
     st.markdown(texto, unsafe_allow_html=True)
-        
-        
