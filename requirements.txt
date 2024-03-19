@@ -11,3 +11,4 @@ mysql-connector-python
 numpy-financial
 geopandas
 folium
+st_folium
